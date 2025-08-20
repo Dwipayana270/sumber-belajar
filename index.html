@@ -328,9 +328,7 @@
             const tanggal = document.getElementById("tanggal").value;
             const diskusi = document.getElementById("diskusi").value;
 
-            const pesan = `Hi Ms. Eka, saya *${nama}*
-    
-    Ingin berdiskusi tentang *${diskusi}* di tanggal *${tanggal}*`;
+            const pesan = `Hi Ms. Eka, saya *${nama}*%0a%0aIngin berdiskusi tentang *${diskusi}* di tanggal *${tanggal}*`;
 
             const waNumber = "6289669853835"; // ganti nomor WA di sini
             const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(pesan)}`;
