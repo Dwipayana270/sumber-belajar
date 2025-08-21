@@ -331,15 +331,27 @@
         </div>
     </footer>
     <script>
-        document.getElementById("waForm").addEventListener("input", function () {
-            const nama = document.getElementById("nama").value;
-            const tanggal = document.getElementById("tanggal").value;
-            const diskusi = document.getElementById("diskusi").value;
-            const pesan = `Hi Ms. Eka, saya *${nama}*\n\nIngin berdiskusi tentang *${diskusi}* di tanggal *${tanggal}*`;
-            const waNumber = "6289669853835"; // ganti nomor WA di sini
-            const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(pesan)}`;
-            document.getElementById("waLink").setAttribute("href", waUrl);
-        });
-    </script>
+    document.getElementById("waForm").addEventListener("input", function () {
+        const nama = document.getElementById("nama").value;
+        const tanggalInput = document.getElementById("tanggal").value;
+        const diskusi = document.getElementById("diskusi").value;
+        
+        // Format tanggal
+        const dateObj = new Date(tanggalInput);
+        const hari = dateObj.getDate();
+        const bulanIndonesia = [
+            "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+        ];
+        const bulan = bulanIndonesia[dateObj.getMonth()];
+        const tahun = dateObj.getFullYear();
+        const tanggalFormatted = `${hari} ${bulan} ${tahun}`;
+        
+        const pesan = `Hi Ms. Eka, saya *${nama}*\n\nIngin berdiskusi tentang *${diskusi}* di tanggal *${tanggalFormatted}*`;
+        const waNumber = "6289669853835"; // ganti nomor WA di sini
+        const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(pesan)}`;
+        document.getElementById("waLink").setAttribute("href", waUrl);
+    });
+</script>
 </body>
 </html>
