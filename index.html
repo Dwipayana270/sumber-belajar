@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>E-Modul Interaktif</title>
+    <title>Koleksi Sumber Belajar | Eka Putri</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Styling khusus untuk form WhatsApp dengan tinggi tetap */
@@ -14,13 +13,11 @@
             display: flex;
             flex-direction: column;
         }
-
         .whatsapp-form-content {
             overflow-y: auto;
             /* Menambahkan scroll jika konten melebihi tinggi */
             flex-grow: 1;
         }
-
         /* Untuk layar mobile, tinggi form akan menyesuaikan */
         @media (max-width: 1024px) {
             .whatsapp-form-container {
@@ -28,14 +25,17 @@
                 max-height: 500px;
             }
         }
-
         /* Styling untuk media card */
         .media-card {
             transition: transform 0.2s ease-in-out;
         }
-
         .media-card:hover {
             transform: translateY(-2px);
+        }
+        /* Active filter button styling */
+        .filter-active {
+            background-color: rgb(59 130 246);
+            color: white;
         }
     </style>
     <script>
@@ -44,21 +44,26 @@
             'bab1': 'Bab 1: Pengantar Aljabar',
             'bab2': 'Bab 2: Persamaan Linear'
         };
-
         // Konstanta untuk warna bab
         const BAB_COLORS = {
             'bab1': 'bg-blue-100',
             'bab2': 'bg-green-100'
         };
-
         // Toggle accordion Bab
         function toggleBab(id) {
             const el = document.getElementById(id);
             el.classList.toggle("hidden");
         }
-
         // Filter media
         function filterMedia(type) {
+            // Remove active class from all filter buttons
+            document.querySelectorAll('.filter-button').forEach(button => {
+                button.classList.remove('filter-active');
+            });
+            
+            // Add active class to clicked button
+            event.target.classList.add('filter-active');
+            
             const all = document.querySelectorAll("[data-type]");
             all.forEach(el => {
                 if (type === "all" || el.dataset.type === type) {
@@ -68,7 +73,6 @@
                 }
             });
         }
-
         // Search materi
         function searchMateri() {
             const query = document.getElementById("searchInput").value.toLowerCase();
@@ -81,7 +85,6 @@
                 }
             });
         }
-
         // Fetch data from Google Sheet dengan URL yang benar (dengan tanda kutip tunggal)
         async function fetchBabData(babName) {
             try {
@@ -94,7 +97,6 @@
                 return [];
             }
         }
-
         // Get icon based on media type
         function getMediaIcon(media) {
             switch (media.toLowerCase()) {
@@ -112,7 +114,6 @@
                     return '📄';
             }
         }
-
         // Get display text based on media type
         function getMediaText(media) {
             switch (media.toLowerCase()) {
@@ -130,7 +131,6 @@
                     return 'Materi';
             }
         }
-
         // Get action text based on media type
         function getActionText(media) {
             switch (media.toLowerCase()) {
@@ -148,12 +148,10 @@
                     return 'Buka Materi';
             }
         }
-
         // Create Bab element
         function createBabElement(babId) {
             const babDiv = document.createElement('div');
             babDiv.className = 'bg-white rounded-2xl shadow mb-4';
-
             babDiv.innerHTML = `
         <button onclick="toggleBab('${babId}')" 
                 class="w-full text-left px-6 py-4 font-bold text-lg ${BAB_COLORS[babId]} rounded-t-2xl flex justify-between items-center">
@@ -167,39 +165,30 @@
           </div>
         </div>
       `;
-
             return babDiv;
         }
-
         // Populate Bab with fetched data
         async function populateBab(babId) {
             const babContainer = document.getElementById(`${babId}-content`);
-
             // Tampilkan indikator loading
             babContainer.innerHTML = '<p class="text-gray-500">Memuat materi...</p>';
-
             const data = await fetchBabData(babId);
-
             if (data.length === 0) {
                 babContainer.innerHTML = '<p class="text-gray-500">Tidak ada materi tersedia saat ini.</p>';
                 return;
             }
-
             babContainer.innerHTML = '';
-
             data.forEach(item => {
                 const mediaType = item.Media.toLowerCase();
                 const div = document.createElement('div');
                 div.className = `p-4 bg-gray-50 rounded-xl shadow media-card mb-4`;
                 div.setAttribute('data-type', mediaType);
                 div.setAttribute('data-title', item.Materi);
-
                 // Pastikan URL memiliki protokol yang benar
                 let url = item.URL;
                 if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
                     url = 'https://' + url;
                 }
-
                 div.innerHTML = `
           <div class="flex items-center mb-2">
             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -215,34 +204,41 @@
             ${getActionText(item.Media)}
           </a>
         `;
-
                 babContainer.appendChild(div);
             });
         }
-
         // Initialize the page when DOM is loaded
         document.addEventListener('DOMContentLoaded', function () {
             const babContainer = document.getElementById('bab-container');
-
             // Create Bab 1
             const bab1Element = createBabElement('bab1');
             babContainer.appendChild(bab1Element);
             populateBab('bab1');
-
             // Create Bab 2
             const bab2Element = createBabElement('bab2');
             babContainer.appendChild(bab2Element);
             populateBab('bab2');
+            
+            // Set the "Semua" button as active by default
+            document.querySelector('.filter-button').classList.add('filter-active');
         });
     </script>
 </head>
-
 <body class="bg-gray-50 text-gray-800 font-inter">
     <!-- Navbar -->
     <header class="bg-white shadow-md sticky top-0 z-50">
         <div class="max-w-6xl mx-auto flex justify-between items-center px-6 py-4">
             <h1 class="text-xl font-bold text-blue-600">📖 Koleksi Sumber Belajar</h1>
-            <nav class="space-x-6">
+            
+            <!-- WhatsApp icon for mobile -->
+            <a href="#appointment" class="md:hidden text-green-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.174-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                </svg>
+            </a>
+            
+            <!-- Navigation for desktop -->
+            <nav class="space-x-6 hidden md:block">
                 <a href="#appointment" class="hover:text-blue-600 flex items-center gap-2">
                     <!-- WhatsApp SVG Icon -->
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -273,17 +269,17 @@
                 <!-- Filter buttons -->
                 <div class="flex flex-wrap gap-3">
                     <button onclick="filterMedia('all')"
-                        class="px-4 py-2 bg-blue-100 text-blue-600 rounded-xl hover:bg-blue-200">Semua</button>
+                        class="filter-button px-4 py-2 bg-blue-100 text-blue-600 rounded-xl hover:bg-blue-200">Semua</button>
                     <button onclick="filterMedia('web')"
-                        class="px-4 py-2 bg-gray-100 rounded-xl hover:bg-gray-200">Web</button>
+                        class="filter-button px-4 py-2 bg-gray-100 rounded-xl hover:bg-gray-200">Web</button>
                     <button onclick="filterMedia('video')"
-                        class="px-4 py-2 bg-gray-100 rounded-xl hover:bg-gray-200">Video</button>
+                        class="filter-button px-4 py-2 bg-gray-100 rounded-xl hover:bg-gray-200">Video</button>
                     <button onclick="filterMedia('quizizz')"
-                        class="px-4 py-2 bg-gray-100 rounded-xl hover:bg-gray-200">Quizizz</button>
+                        class="filter-button px-4 py-2 bg-gray-100 rounded-xl hover:bg-gray-200">Quizizz</button>
                     <button onclick="filterMedia('artikel')"
-                        class="px-4 py-2 bg-gray-100 rounded-xl hover:bg-gray-200">Artikel</button>
+                        class="filter-button px-4 py-2 bg-gray-100 rounded-xl hover:bg-gray-200">Artikel</button>
                     <button onclick="filterMedia('pdf')"
-                        class="px-4 py-2 bg-gray-100 rounded-xl hover:bg-gray-200">PDF</button>
+                        class="filter-button px-4 py-2 bg-gray-100 rounded-xl hover:bg-gray-200">PDF</button>
                 </div>
             </div>
             <!-- Bab Container - akan diisi secara dinamis -->
@@ -299,19 +295,16 @@
                     <!-- Nama -->
                     <input type="text" id="nama" placeholder="Nama"
                         class="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-500" required />
-
                     <!-- Tanggal Diskusi -->
                     <input type="date" id="tanggal"
                         class="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-500" required />
-
                     <!-- Diskusi Tentang -->
                     <input type="text" id="diskusi" placeholder="Diskusi tentang?"
                         class="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-500" required />
-
                     <!-- Tombol WhatsApp -->
                     <a id="waLink" href="#" target="_blank"
                         class="block text-center bg-green-600 text-white py-3 rounded-xl shadow hover:bg-green-700">
-                        💬 Booking via WhatsApp
+                        💬 WhatsApp Ms Eka
                     </a>
                 </form>
             </div>
@@ -328,15 +321,11 @@
             const nama = document.getElementById("nama").value;
             const tanggal = document.getElementById("tanggal").value;
             const diskusi = document.getElementById("diskusi").value;
-
             const pesan = `Hi Ms. Eka, saya *${nama}*\n\nIngin berdiskusi tentang *${diskusi}* di tanggal *${tanggal}*`;
-
             const waNumber = "6289669853835"; // ganti nomor WA di sini
             const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(pesan)}`;
-
             document.getElementById("waLink").setAttribute("href", waUrl);
         });
     </script>
 </body>
-
 </html>
