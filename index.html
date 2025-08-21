@@ -39,18 +39,6 @@
         }
     </style>
     <script>
-        // Konstanta untuk judul bab
-        const BAB_TITLES = {
-            'bab1': 'Bab 1: Pengantar Aljabar',
-            'bab2': 'Bab 2: Persamaan Linear',
-            'bab3': 'Bab 3: Bab 3',
-        };
-        // Konstanta untuk warna bab
-        const BAB_COLORS = {
-            'bab1': 'bg-blue-100',
-            'bab2': 'bg-green-100',
-            'bab3': 'bg-blue-100',
-        };
         // Toggle accordion Bab
         function toggleBab(id) {
             const el = document.getElementById(id);
@@ -151,13 +139,13 @@
             }
         }
         // Create Bab element
-        function createBabElement(babId) {
+        function createBabElement(babId, title, colorClass) {
             const babDiv = document.createElement('div');
             babDiv.className = 'bg-white rounded-2xl shadow mb-4';
             babDiv.innerHTML = `
         <button onclick="toggleBab('${babId}')" 
-                class="w-full text-left px-6 py-4 font-bold text-lg ${BAB_COLORS[babId]} rounded-t-2xl flex justify-between items-center">
-          ${BAB_TITLES[babId]}
+                class="w-full text-left px-6 py-4 font-bold text-lg ${colorClass} rounded-t-2xl flex justify-between items-center">
+          ${title}
           <span class="text-gray-600">+</span>
         </button>
         <div id="${babId}" class="hidden p-6 space-y-4">
@@ -209,20 +197,44 @@
                 babContainer.appendChild(div);
             });
         }
+        // Fetch bab names from the provided URL
+        async function fetchBabNames() {
+            try {
+                const response = await fetch('https://opensheet.elk.sh/1WV1LapUAqDJbgXvhiEvVK0le3bR0oe3Ryae0MCpWdYM/babName');
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching bab names:', error);
+                return [];
+            }
+        }
         // Initialize the page when DOM is loaded
         document.addEventListener('DOMContentLoaded', function () {
             const babContainer = document.getElementById('bab-container');
-            // Create Bab 1
-            const bab1Element = createBabElement('bab1');
-            babContainer.appendChild(bab1Element);
-            populateBab('bab1');
-            // Create Bab 2
-            const bab2Element = createBabElement('bab2');
-            babContainer.appendChild(bab2Element);
-            populateBab('bab2');
+            const colors = ['bg-blue-100', 'bg-green-100', 'bg-yellow-100', 'bg-purple-100', 'bg-pink-100', 'bg-indigo-100'];
             
-            // Set the "Semua" button as active by default
-            document.querySelector('.filter-button').classList.add('filter-active');
+            // Fetch bab names and create elements
+            fetchBabNames().then(babNames => {
+                if (babNames.length === 0) {
+                    // Fallback to hard-coded if fetch fails
+                    babNames = [
+                        { "Nama Bab": "Bab 1: Pengantar Aljabar" },
+                        { "Nama Bab": "Bab 2: Persamaan Linear" },
+                        { "Nama Bab": "Bab 3: Bab 3" }
+                    ];
+                }
+                
+                babNames.forEach((bab, index) => {
+                    const babId = `bab${index+1}`;
+                    const colorClass = colors[index % colors.length];
+                    const babElement = createBabElement(babId, bab["Nama Bab"], colorClass);
+                    babContainer.appendChild(babElement);
+                    populateBab(babId);
+                });
+                
+                // Set the "Semua" button as active by default
+                document.querySelector('.filter-button').classList.add('filter-active');
+            });
         });
     </script>
 </head>
